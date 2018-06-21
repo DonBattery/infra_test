@@ -1,19 +1,10 @@
 'use strict';
 
+const execute = require('execute-shell-promise');
+
 const express = require('express');
+
 const app = express();
-
-const exec = require('child_process').exec;
-
-function runCommand(command, res) {
-  exec(command, (err, stdout, stderr) => {
-    if (err) {
-      res.send(`could not run ${command} : ${err}`);
-      return
-    }
-    res.send(`stdout:\n${stdout}\nstderr:\n${stderr}`);
-  });
-}
 
 function getLetters(data) {
   let letterSet = {}
@@ -50,19 +41,25 @@ app.get('/fizzbuzz/:num', (req, res) => {
 
 app.post('/count', (req, res) => {
   let response = '';
+  let statusCode = 200;
   if (!req.body.hasOwnProperty('data')) {
-    response = 'No Data provided';
+    response = {error: 'No Data provided'};
+    statusCode = 400;
   } else {
-    response = getLetters(String(req.body.data));
+    response = {letters : getLetters(String(req.body.data))};
   }
-  res.send(response);
+  res.status(statusCode).json(response);
 });
 
 app.post('/run', (req, res) => {
   if (!req.body.hasOwnProperty('command')) {
-    res.send('No command provided');
+    res.status(400).send('No Command provided');
   } else {
-    runCommand(req.body.command, res);
+    execute(req.body.command).then(stdout => {
+      res.send(stdout);
+    }).catch(stderr => {
+      res.status(400).send(`Invalid command : ${req.body.command}`);
+    });
   }
 });
 

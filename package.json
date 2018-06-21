@@ -4,8 +4,9 @@
   "description": "test API",
   "main": "server.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter spec test/test.js test/test2.js",
-    "start": "node server.js"
+    "test": "mocha",
+    "start": "node server.js",
+    "docker": "docker build -t infra_test .; docker run -d -p 3030:3030 infra_test"
   },
   "repository": {
     "type": "git",
@@ -18,9 +19,13 @@
   },
   "homepage": "https://github.com/DonBattery/infra_test#readme",
   "dependencies": {
+    "execute-shell-promise": "^1.0.1",
+    "express": "^4.16.3"
+  },
+  "devDependencies": {
     "chai": "^4.1.2",
-    "express": "^4.16.3",
+    "lodash": "^4.17.10",
     "mocha": "^5.2.0",
-    "request": "^2.87.0"
+    "supertest": "^3.1.0"
   }
 }
